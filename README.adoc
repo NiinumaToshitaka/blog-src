@@ -210,6 +210,10 @@ content/
 
 2番の方法のほうが管理しやすい。
 
+=== 作図
+
+参考: https://gohugo.io/content-management/formats/[Content Formats | Hugo]
+
 [bibliography]
 == 参考文献
 

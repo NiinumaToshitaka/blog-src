@@ -1,3 +1,38 @@
-baseURL = 'http://example.org/'
-languageCode = 'en-us'
-title = 'My New Hugo Site'
+# サイトトップに表示されるタイトル
+title = "備忘録"
+
+# 使用するテーマ
+# themesディレクトリに同名のディレクトリがないとエラーになる
+theme = "beautifulhugo"
+
+# 日本語を含む場合の言語まわりの設定
+defaultContentLanguage = "ja"
+languageCode = "ja"
+hasCJKLanguage= true
+
+[Params]
+description = "ソフトウェアエンジニアの備忘録です。"
+
+# "asciidoctor"コマンドを実行を許可するコマンドのリストに追加する。
+# AsciiDocファイルからページを生成するときに，
+# デフォルトの設定だと"asciidoctor"コマンドがリストに登録されておらずエラーになる。
+[security.exec]
+allow = ["^dart-sass-embedded$", "^go$", "^npx$", "^postcss$", "^asciidoctor$"]
+
+[taxonomies]
+tag = "tags"
+
+[[menu.main]]
+name = "タグ一覧"
+url = "tags"
+
+[markup]
+  # AsciiDocファイルに対する設定
+  [markup.asciidocExt]
+    # 使用する拡張機能を指定
+    # hugoの実行環境に指定した拡張機能がインストールされている必要がある
+    extensions = ["asciidoctor-diagram"]
+    trace = true
+    verbose = true
+    # asciidoctor-diagramを使用するには，この値がtrueである必要がある
+    workingFolderCurrent = true

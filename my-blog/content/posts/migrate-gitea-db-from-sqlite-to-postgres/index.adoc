@@ -1,0 +1,52 @@
+---
+title: "GiteaのデータベースをSQliteからPostgreSQLに移行する"
+date: "2022-12-03"
+lastmod: "2022-12-03"
+draft: true
+slug: "migrate-gitea-db-from-sqlite-to-postgres"
+thumbnail: ""
+description: ""
+tags: []
+isCJKLanguage: true
+archives: ["2022/12"]
+---
+
+// 図を出力するディレクトリ
+// 図はhtmlファイルに埋め込むので保存する必要がない
+:imagesoutdir: ./asciidoctor
+// 図のキャッシュファイルを配置するディレクトリ
+:diagram-cachedir: ./asciidoctor
+// 画像データをhtmlファイル内に埋め込む
+:data-uri:
+// PlantUML図の画像フォーマットを指定
+// ":<ダイアグラムタイプ>-<アトリビュート名>: 値"のフォーマットで，
+// ダイアグラムのアトリビュートをドキュメントレベルで指定できる。
+// 詳細は以下ページを参照。
+// <https://docs.asciidoctor.org/diagram-extension/latest/#diagram-attributes>
+:plantuml-format: svg
+
+== 注意
+
+Giteaの運用を開始してからデータベースを移行することは可能ではありますが，可能なら最初からPostgreSQLを使用するべきです。
+
+== 環境
+
+* OS: Windows 10 Home 21H2
+* WSL: Ubuntu 18.04.6 LTS
+* Docker: Docker Desktop 4.12.0
+
+Giteaの環境は以下のDocker Composeファイルで構築しています。
+
+[source, yml]
+----
+include::./gitea-with-sqlite/docker-compose.yml[]
+----
+
+== Hugoで作図するテスト
+
+[plantuml]
+----
+@startuml
+アリス -> ボブ: ハロー!!
+@enduml
+----
