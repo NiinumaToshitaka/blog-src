@@ -191,6 +191,35 @@ include::quickstart/config.toml[tag=add-tag-list-page]
 
 ページの上部に表示されるヘッダー部に，「タグ一覧」という名前でタグ一覧のページへのリンクが表示される。
 
+=== ページに画像を挿入する
+
+画像ファイルを管理する方法は2つある。
+
+1. 記事ファイルを``content``ディレクトリに，画像ファイルを``static``ファイルに配置する
++
+....
+content/
+  |- 記事1.adoc
+  |- 記事2.adoc
+static/
+  |- image1.png
+  |- image2.png
+....
++
+2. 記事ファイルと画像ファイルを格納するフォルダを作成し，記事ファイルを``index.adoc``という名前で配置する
++
+....
+content/
+  |- 記事1/
+  |   |- index.adoc
+  |   |- image1.png
+  |- 記事2
+      |- index.adoc
+      |- image2.png
+....
+
+2番の方法のほうが管理しやすい。
+
 [bibliography]
 == 参考文献
 
