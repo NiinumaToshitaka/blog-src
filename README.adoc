@@ -150,6 +150,30 @@ Webブラウザで {hugo-develop-site-url} にアクセスすると，サイト�
 hugo server -D --poll 1s
 ----
 
+=== 使用するテーマを変更する
+
+ここでは https://github.com/halogenica/beautifulhugo[beautifulhugo] に変更してみる。
+
+. テーマを``themes``ディレクトリに配置する
++
+[source, bash]
+----
+git submodule add https://github.com/halogenica/beautifulhugo.git themes/beautifulhugo
+----
++
+. サイト全体の設定を編集する
++
+[source, diff]
+----
+--- a/config.toml
++++ b/config.toml
+@@ -6 +6 @@ title = "Sample"
+-theme = "ananke"
++theme = "beautifulhugo"
+----
+
+以降はページを生成すると変更後のテーマが使用される。
+
 [bibliography]
 == 参考文献
 
