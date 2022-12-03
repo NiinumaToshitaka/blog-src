@@ -29,16 +29,6 @@ docker compose -p hugo-test run --service-ports hugo
 
 HugoのQuick Start<<hugo-quick-start>>に従い操作してみる。
 
-HugoコンテナにはGitがインストールされていない。
-このあとの手順でGitを使用するのでインストールする。
-このコンテナのOSはAlpine Linuxなので，パッケージの管理は``apk``コマンドで行う。
-
-[source, bash]
-----
-apk update
-apk add git
-----
-
 [[create-sample-hugo-site]]
 Hugoサイトを作成する footnote:[https://gohugo.io/getting-started/quick-start/#commands] 。
 

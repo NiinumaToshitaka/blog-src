@@ -1,7 +1,10 @@
 version: '3'
 services:
   hugo:
-    image: klakegg/hugo:asciidoctor
+    container_name: hugo
+    build:
+      context: ./Dockerfile
+      dockerfile: Dockerfile
     volumes:
       - ./:/src
     ports:
