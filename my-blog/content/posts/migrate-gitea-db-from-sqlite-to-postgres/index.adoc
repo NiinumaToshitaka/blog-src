@@ -11,6 +11,8 @@ isCJKLanguage: true
 archives: ["2022/12"]
 ---
 
+:toc:
+:!prewrap:
 // 図を出力するディレクトリ
 // 図はhtmlファイルに埋め込むので保存する必要がない
 :imagesoutdir: ./asciidoctor
@@ -24,10 +26,18 @@ archives: ["2022/12"]
 // 詳細は以下ページを参照。
 // <https://docs.asciidoctor.org/diagram-extension/latest/#diagram-attributes>
 :plantuml-format: svg
+:icons: font
+:source-highlighter: rouge
+:gitea-with-sqlite-docker-container-name: gitea-with-sqlite
+:gitea-with-postgres-docker-container-name: gitea-with-postgres
+:postgres-docker-container-name: postgres
+:gitea-database-name: gitea
+
+この記事では，Giteaの運用を開始したあとに，データベースをデフォルトのSQLiteからPostgreSQLに移行する手順を説明します。
 
 == 注意
 
-Giteaの運用を開始してからデータベースを移行することは可能ではありますが，可能なら最初からPostgreSQLを使用するべきです。
+Giteaの運用を開始してからデータベースを移行することは可能ではありますが，できることなら最初からPostgreSQLを使用するべきです。
 
 == 環境
 
@@ -35,18 +45,157 @@ Giteaの運用を開始してからデータベースを移行することは可
 * WSL: Ubuntu 18.04.6 LTS
 * Docker: Docker Desktop 4.12.0
 
-Giteaの環境は以下のDocker Composeファイルで構築しています。
+移行元と移行先のGiteaの環境はそれぞれ以下のDocker Composeファイルで構築しています。
+いずれもGiteaのドキュメント footnote:[https://docs.gitea.io/en-us/install-with-docker/] に掲載されているものをそのまま使用しています。
 
+.移行元 (gitea-with-sqlite/docker-compose.yml)
 [source, yml]
 ----
 include::./gitea-with-sqlite/docker-compose.yml[]
 ----
 
-== Hugoで作図するテスト
+.移行先 (gitea-with-postgres/docker-compose.yml)
+[source, yml]
+----
+include::./gitea-with-postgres/docker-compose.yml[]
+----
 
-[plantuml]
+////
+この記事の本題からは逸れるが，上記のDocker Composeファイルだと
+PostgreSQLのロケールが日本語に設定されていないので，
+リストア後にGiteaがデータベースを更新しようとするとエラーが発生するのでは？
+-> デフォルトのエンコーディングはUTF8なので問題ない。
+////
+
+== 移行元のデータをダンプ
+
+以下のコマンド footnote:[<https://docs.gitea.io/en-us/backup-and-restore/#using-docker-dump>] で移行元のSQLiteのデータをダンプします。
+このとき，データベースのデータをPostgreSQLの構文でダンプすることで，PostgreSQLにインポートできるようにします。
+
+なお，このコマンドを実行するときは，移行元のGiteaのDockerコンテナが実行中である必要があります。
+
+[source, bash, subs="attributes+"]
 ----
-@startuml
-アリス -> ボブ: ハロー!!
-@enduml
+# PostgreSQLのSQL構文でダンプ
+docker exec -it \
+    -u git \
+    -w /tmp \
+    {gitea-with-sqlite-docker-container-name} \
+    bash -c '/usr/local/bin/gitea dump --config /data/gitea/conf/app.ini --database postgres --file gitea-dump.zip'
+
+# ダンプしたファイルを保存するディレクトリを作成
+mkdir -p ./gitea-backup
+# ダンプしたファイルをホストにコピー
+docker cp {gitea-with-sqlite-docker-container-name}:/tmp/gitea-dump.zip ./gitea-backup/
 ----
+
+TIP: 上記のコマンドはWSLで実行する必要があります。Git Bashで実行すると``OCI runtime exec failed: exec failed: Cwd must be an absolute path: unknown``というエラーが発生します。
+
+== 移行先にデータをリストア
+
+以下のコマンドでダンプしたデータを移行先にリストアします。
+// 移行元と移行先で同じ名前のボリュームを使用しているから，
+// 両方のコンテナを同時に起動していると同時に書き込んで問題が発生するのでは？
+
+[source, bash, subs="attributes+"]
+----
+# PostgreSQLのコンテナを起動
+pushd gitea-with-postgres
+docker compose up --detach db
+popd
+
+# ダンプしたSQLファイルをコンテナにコピー
+pushd gitea-backup
+unzip gitea-dump.zip
+docker cp ./gitea-db.sql {postgres-docker-container-name}:/tmp
+popd
+
+# 実行中のコンテナに接続
+docker exec -it postgres bash
+# データベースに接続する
+# 接続先を指定しないと"gitea"データベースに接続してしまい削除できなくなるので，
+# 適当に別のデータベースに接続する
+psql -U gitea -d postgres
+# Docker Composeファイルの設定で既に"gitea"データベースを作成済みなので，
+# いったん削除してから再度作成する
+drop database {gitea-database-name};
+create database {gitea-database-name};
+exit;
+# SQLファイルをインポート
+psql -U gitea -d gitea -f /tmp/gitea-db.sql
+# コンテナから出る
+exit
+exit
+
+# PostgreSQLのコンテナを停止
+docker stop postgres
+
+# Giteaのコンテナを起動
+pushd gitea-with-postgres
+docker compose up --detach
+popd
+
+# ダンプしたデータをコンテナにコピー
+pushd gitea-backup
+docker cp ./gitea-dump.zip {gitea-with-postgres-docker-container-name}:/tmp
+popd
+
+# Giteaのコンテナに接続
+docker exec -it {gitea-with-postgres-docker-container-name} bash
+# データを展開
+cd /tmp/
+unzip gitea-dump.zip
+# データを配置
+rm -rf /data/gitea
+mv data/ /data/gitea
+rm -rf /data/git/repositories/
+mv repos/ /data/git/repositories/
+# ファイルの所有者がrootになっているので直す
+chown -R git:git /data
+# Gitフックを再生成する
+# Giteaコマンドはrootユーザでは実行できないので，"git"ユーザに切り替える
+su git
+/usr/local/bin/gitea -c '/data/gitea/conf/app.ini' admin regenerate hooks
+# Giteaの設定ファイルを開いて，PostgreSQLに接続するよう書き換える。
+# 詳細は次のコードブロックを参照。
+vi /data/gitea/conf/app.ini
+exit
+exit
+
+# 設定を反映するためにGiteaコンテナを再起動する
+docker compose -p gitea-with-postgres stop
+docker compose -p gitea-with-postgres start
+----
+
+``/data/gitea/conf/app.ini``は``[database]``セクションを以下のとおり書き換えます。
+
+[source, diff]
+----
+data/conf/app.ini new-app.ini -U0
+--- gitea-backup/data/conf/app.ini      2022-12-03 23:23:38.249672600 +0900
++++ new-app.ini 2022-12-03 23:25:31.000000000 +0900
+@@ -28,10 +28,7 @@
+-PATH     = /data/gitea/gitea.db
+-DB_TYPE  = sqlite3
+-HOST     = localhost:3306
+-NAME     = gitea
+-USER     = root
+-PASSWD   =
+-LOG_SQL  = false
+-SCHEMA   =
+-SSL_MODE = disable
+-CHARSET  = utf8
++PATH    = /data/gitea/gitea.db
++DB_TYPE = postgres
++HOST    = db:5432
++NAME    = gitea
++USER    = gitea
++PASSWD  = gitea
++LOG_SQL = false
+----
+
+Giteaコンテナの再起動後， http://localhost:3000/ にアクセスし，移行元と同じ内容が表示されていれば，移行に成功しています。
+
+[bibliography]
+== 参考文献
+* https://blog.amedama.jp/entry/2017/06/15/223945[ファイルから SQL を読み込む (MySQL, PostgreSQL, SQLite3) - CUBE SUGAR CONTAINER]
