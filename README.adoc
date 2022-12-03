@@ -174,6 +174,23 @@ git submodule add https://github.com/halogenica/beautifulhugo.git themes/beautif
 
 以降はページを生成すると変更後のテーマが使用される。
 
+=== タグ一覧のページを作成する
+
+参考
+
+* https://maku77.github.io/hugo/taxonomy/basic.html[タクソノミーの基本 - まくまくHugoノート]
+* https://www.yuyagishita.com/tech/hugo/config-setup/[Hugoで作成したサイトの表示設定について - YAGI BLOG]
+
+``config.toml``に以下を追記する。
+
+[source, toml]
+.config.toml
+----
+include::quickstart/config.toml[tag=add-tag-list-page]
+----
+
+ページの上部に表示されるヘッダー部に，「タグ一覧」という名前でタグ一覧のページへのリンクが表示される。
+
 [bibliography]
 == 参考文献
 
