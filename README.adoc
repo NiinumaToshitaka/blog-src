@@ -1,0 +1,61 @@
+= AsciiDocとHugoでホームページを作成する
+:source-highlighter: rouge
+
+技術情報を発信するブログを作成したいので，AsciiDocとHugoで手軽に作ってみる。
+
+== 環境
+
+* OS: Windows 10 Home 21H2
+* WSL: Ubuntu 18.04.6 LTS
+* Docker: Docker Desktop 4.12.0
+
+本書中のコマンドはUbuntu on WSLで実行する。
+
+== とりあえずHugoを使ってみる
+
+AsciiDoctorがインストールされたHugoのDockerイメージを使用する。
+
+Hugo shellを起動する。
+このシェルではbashのコマンドが使用できる。
+
+[source, bash]
+----
+docker compose -p hugo-test run --service-ports hugo
+----
+
+HugoのQuick Start<<hugo-quick-start>>に従い操作してみる。
+
+HugoコンテナにはGitがインストールされていない。
+このあとの手順でGitを使用するのでインストールする。
+このコンテナのOSはAlpine Linuxなので，パッケージの管理は``apk``コマンドで行う。
+
+[source, bash]
+----
+apk update
+apk add git
+----
+
+Hugoサイトを作成する footnote:[https://gohugo.io/getting-started/quick-start/#commands] 。
+
+[source, bash]
+----
+# サイトの雛型を作成
+hugo new site quickstart
+# プロジェクトのルートディレクトリに移動
+cd quickstart
+git init
+# Anankeテーマをダウンロードして配置
+git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke themes/ananke
+# ダウンロードしたテーマを使用することをサイトの設定ファイルに追記
+echo "theme = 'ananke'" >> config.toml
+# Hugoの開発用Webサーバを起動
+hugo server
+----
+
+Webブラウザで http://localhost:1313/ にアクセスすると，作成したページにアクセスできる。
+
+[bibliography]
+== 参考文献
+
+* [[[write-blog-with-asciidoc-and-hugo-1, 1]]] https://deankh.github.io/blog/posts/dwjnjn8tbf/[Hugo + AsciidocでGitHub Pages上にブログを公開するまで その1 - DeanKHの日記]
+* [[[hugo-quick-start, 2]]] https://gohugo.io/getting-started/quick-start/[Quick Start | Hugo]
