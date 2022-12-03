@@ -1,5 +1,7 @@
 = AsciiDocとHugoでホームページを作成する
 :source-highlighter: rouge
+:toc:
+:hugo-develop-site-url: http://localhost:1313/
 
 技術情報を発信するブログを作成したいので，AsciiDocとHugoで手軽に作ってみる。
 
@@ -23,6 +25,8 @@ Hugo shellを起動する。
 docker compose -p hugo-test run --service-ports hugo
 ----
 
+``docker-compose.yml``でカレントディレクトリをコンテナ内の``src``にマウントするよう指定しているので，ホストOS側でファイルを編集すれば，コンテナ内でも反映される。
+
 HugoのQuick Start<<hugo-quick-start>>に従い操作してみる。
 
 HugoコンテナにはGitがインストールされていない。
@@ -35,6 +39,7 @@ apk update
 apk add git
 ----
 
+[[create-sample-hugo-site]]
 Hugoサイトを作成する footnote:[https://gohugo.io/getting-started/quick-start/#commands] 。
 
 [source, bash]
@@ -52,10 +57,103 @@ echo "theme = 'ananke'" >> config.toml
 hugo server
 ----
 
-Webブラウザで http://localhost:1313/ にアクセスすると，作成したページにアクセスできる。
+Webブラウザで {hugo-develop-site-url} にアクセスすると，作成したページにアクセスできる。
+
+== Webページを作成してみる
+
+<<write-blog-with-asciidoc-and-hugo-1, この記事>>を参考に，Webページを作成してみる。
+
+以降は<<create-sample-hugo-site, Quick Startで作成した>>``/src/quickstart``ディレクトリ内で作業する。
+
+[[create-template]]
+=== テンプレートを作成する
+
+以下のファイルを``archetypes``に配置する。
+
+[source, adoc]
+.default.adoc
+----
+include::quickstart/archetypes/default.adoc[]
+----
+
+``---``で囲われた領域はフロントマター<<hugo-front-matter>>で，ここで各ページのプロパティを指定する。
+
+=== ページを作成する
+
+``hugo new``コマンドで新しいページを作成する。
+
+[source, bash]
+----
+hugo new posts/sample.adoc
+----
+
+上記のコマンドにより，``content/posts/``内に``sample.adoc``が生成される。
+このファイルには，<<create-template>>で作成したテンプレートが適用されている。
+
+=== サイト全体の設定
+
+``config.toml``を次のとおり編集する。
+
+[source, toml]
+.config.toml
+----
+include::quickstart/config.toml[]
+----
+
+=== 開発用Webサーバを起動
+
+以下のコマンドで開発用のWebサーバを起動する。
+
+[source, bash]
+----
+# -D: "draft: true"のファイルも生成対象とする
+hugo server -D
+----
+
+ただし，AsciiDocファイルからページを生成するとき，以下のようにエラーが出力されてしまう。
+
+[source, bash]
+----
+Error: Error building site: "/src/quickstart/content/posts/sample.adoc:1:1": access denied: "asciidoctor" is not whitelisted in policy "security.exec.allow"; the current security configuration is:
+
+[security]
+  enableInlineShortcodes = false
+
+  [security.exec]
+    allow = ['^dart-sass-embedded$', '^go$', '^npx$', '^postcss$']
+    osEnv = ['(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM)$']
+
+  [security.funcs]
+    getenv = ['^HUGO_']
+
+  [security.http]
+    methods = ['(?i)GET|POST']
+    urls = ['.*']
+----
+
+このため，``config.toml``に以下を追記して<<configure-hugo-security-exec-list>>から再度Webサーバを起動する。
+
+[source, toml]
+----
+include::quickstart/config.toml[tag=security-config]
+----
+
+Webブラウザで {hugo-develop-site-url} にアクセスすると，サイトのトップページにアクセスできる。
+
+``hugo server``コマンドはファイルの更新を検知して自動的にページを更新してくれるはずだが，ホスト側のファイルをコンテナにマウントしているからか，ホスト側でファイルを更新してもページが更新されない。
+``--poll``オプションを使用すると，指定した間隔でファイルの更新を確認するので，これで代用することができる。
+ただしディスクへの負荷は高くなりそう。
+
+[source, bash]
+----
+# ファイルが更新されているか1秒ごとに確認する
+hugo server -D --poll 1s
+----
 
 [bibliography]
 == 参考文献
 
 * [[[write-blog-with-asciidoc-and-hugo-1, 1]]] https://deankh.github.io/blog/posts/dwjnjn8tbf/[Hugo + AsciidocでGitHub Pages上にブログを公開するまで その1 - DeanKHの日記]
 * [[[hugo-quick-start, 2]]] https://gohugo.io/getting-started/quick-start/[Quick Start | Hugo]
+* [[[hugo-front-matter, 3]]] https://gohugo.io/content-management/front-matter/[Front Matter | Hugo]
+* [[[configure-hugo-security-exec-list, 4]]] https://stackoverflow.com/questions/71058236/hugo-with-asciidoctor[blogs - Hugo with Asciidoctor - Stack Overflow]
