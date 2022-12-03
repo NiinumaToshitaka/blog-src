@@ -214,6 +214,22 @@ content/
 
 参考: https://gohugo.io/content-management/formats/[Content Formats | Hugo]
 
+=== コンテンツの折り畳み
+
+以下のように記載すると，コンテンツを折り畳むことができる。
+クリックすることで展開したり再度折り畳んだりできる。
+
+[source, asciidoc]
+----
+.折り畳み時に表示する見出し
+[%collapsible]
+====
+折りたたみたいコンテンツ
+====
+----
+
+ただし，"beautifulhugo"テーマに適用されるCSSだと，折り畳まれていることがわかるような記号などが表示されない。
+
 [bibliography]
 == 参考文献
 
