@@ -97,7 +97,7 @@ hugo new posts/sample.adoc
 [source, toml]
 .config.toml
 ----
-include::quickstart/config.toml[]
+include::quickstart/config.toml[tag=base-config]
 ----
 
 === 開発用Webサーバを起動
