@@ -22,7 +22,7 @@ Hugo shellを起動する。
 
 [source, bash]
 ----
-docker compose -p hugo-test run --service-ports hugo
+docker compose -p hugo-test run --rm --service-ports hugo
 ----
 
 ``docker-compose.yml``でカレントディレクトリをコンテナ内の``src``にマウントするよう指定しているので，ホストOS側でファイルを編集すれば，コンテナ内でも反映される。
