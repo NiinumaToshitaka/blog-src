@@ -29,5 +29,4 @@ archives: ["{{ dateFormat "2006/01" .Date }}"]
 // 詳細は以下ページを参照。
 // <https://docs.asciidoctor.org/diagram-extension/latest/#diagram-attributes>
 :plantuml-format: svg
-:icons: font
 :source-highlighter: rouge

@@ -26,7 +26,6 @@ archives: ["2022/12"]
 // 詳細は以下ページを参照。
 // <https://docs.asciidoctor.org/diagram-extension/latest/#diagram-attributes>
 :plantuml-format: svg
-:icons: font
 :source-highlighter: rouge
 :gitea-with-sqlite-docker-container-name: gitea-with-sqlite
 :gitea-with-postgres-docker-container-name: gitea-with-postgres
