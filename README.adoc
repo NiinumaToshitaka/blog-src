@@ -32,7 +32,7 @@ HugoのQuick Start<<hugo-quick-start>>に従い操作してみる。
 [[create-sample-hugo-site]]
 Hugoサイトを作成する footnote:[https://gohugo.io/getting-started/quick-start/#commands] 。
 
-[source, bash]
+[source, bash, subs="attributes+"]
 ----
 # サイトの雛型を作成
 hugo new site quickstart
@@ -44,7 +44,7 @@ git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke themes/an
 # ダウンロードしたテーマを使用することをサイトの設定ファイルに追記
 echo "theme = 'ananke'" >> config.toml
 # Hugoの開発用Webサーバを起動
-hugo server
+hugo server --baseURL {hugo-develop-site-url}
 ----
 
 Webブラウザで {hugo-develop-site-url} にアクセスすると，作成したページにアクセスできる。
@@ -115,7 +115,7 @@ hasCJKLanguage= true
 
 以下のコマンドで開発用のWebサーバを起動する。
 
-[source, bash]
+[source, bash, subs="attributes+"]
 ----
 # -w: Hugoシェルを起動するコンテナ内のディレクトリを指定
 #   Docker Composeファイルでホストのカレントディレクトリを
@@ -130,7 +130,7 @@ docker compose -p hugo-test \
 
 # 開発用のWebサーバを起動
 # -D: "draft: true"のファイルも生成対象とする
-hugo server -D
+hugo server -D --baseURL {hugo-develop-site-url}
 ----
 
 ただし，AsciiDocファイルからページを生成するとき，以下のようにエラーが出力されてしまう。
