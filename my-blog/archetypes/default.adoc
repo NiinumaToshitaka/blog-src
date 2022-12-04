@@ -10,3 +10,24 @@ tags: ["未分類"]
 isCJKLanguage: true
 archives: ["{{ dateFormat "2006/01" .Date }}"]
 ---
+
+// 目次を生成する
+:toc:
+// 目次を生成するレベルを指定
+// 少なくとも"config.toml"の"[markup.tableOfContents.endLevel]"と等しい値とすること
+:toclevels: 3
+// 図を出力するディレクトリ
+// 図はhtmlファイルに埋め込むので保存する必要がない
+:imagesoutdir: ./asciidoctor
+// 図のキャッシュファイルを配置するディレクトリ
+:diagram-cachedir: ./asciidoctor
+// 画像データをhtmlファイル内に埋め込む
+:data-uri:
+// PlantUML図の画像フォーマットを指定
+// ":<ダイアグラムタイプ>-<アトリビュート名>: 値"のフォーマットで，
+// ダイアグラムのアトリビュートをドキュメントレベルで指定できる。
+// 詳細は以下ページを参照。
+// <https://docs.asciidoctor.org/diagram-extension/latest/#diagram-attributes>
+:plantuml-format: svg
+:icons: font
+:source-highlighter: rouge
