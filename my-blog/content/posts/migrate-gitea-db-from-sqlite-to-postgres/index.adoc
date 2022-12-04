@@ -210,4 +210,7 @@ Giteaコンテナの再起動後， http://localhost:3000/ にアクセスし，
 
 [bibliography]
 == 参考文献
+
+* https://web.archive.org/web/20200812160657/https://inhji.de/blog/migrate-gitea-from-sqlite-to-postgres/[Migrate Gitea from SQLite to Postgres | Inhji.de]
+    ** この記事の"Fix PostgreSQL Sequences"の章では，``SETVAL``によりシーケンスの現在値を設定するよう説明されています。しかし，最新のGiteaではダンプしたSQLファイルにこの処理も含まれているため，手動で設定する必要はありません。
 * https://blog.amedama.jp/entry/2017/06/15/223945[ファイルから SQL を読み込む (MySQL, PostgreSQL, SQLite3) - CUBE SUGAR CONTAINER]
