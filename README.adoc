@@ -279,6 +279,9 @@ content/
 
 Hugoの実行環境として使用しているDockerコンテナは，タイムゾーンがUTCに設定されているため，日本時間に変更しないと最新のページが生成されない。
 
+Dockerコンテナが使用しているOSであるAlpine Linuxでタイムゾーンを日本時間に設定する手順は https://sebenkyo.com/2021/08/12/post-2203/[Alpine LinuxのタイムゾーンをAsia/Tokyoに変更する | SEのプログラミングと英語の勉強ブログ] を参照。
+なお，既に``Dockerfile/Dockerfile``はタイムゾーンを日本時間に変更するよう実装している。
+
 === 目次を生成する
 
 ==== Hugoの設定ファイルを編集
