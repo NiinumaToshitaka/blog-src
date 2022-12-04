@@ -308,14 +308,55 @@ include::./my-blog/config.toml[tag=table-of-contents]
 HugoはAsciiDocのTOCディレクティブに対応しているので，AsciiDocファイルでは``toc``アトリビュートを定義すればよい<<table-of-contents-with-asciidoc>>。
 ただし``toclevels``アトリビュートの値は少なくとも``config.toml``の``[markup.tableOfContents.endLevel]``と等しい値である必要がある。
 
-== 生成したページを公開する
+== 生成したページをGitHub Pagesで公開する
 
-以下のコマンドでページを生成する。
+ここでは https://docs.github.com/ja/pages/getting-started-with-github-pages[GitHub Pages] を利用して，生成したページを公開する。
 
+GitHub PagesでWebページを公開する手順は， https://prog-8.com/docs/github-pages[自分で作ったWebページをインターネット上に公開しよう！ | プログラミングの入門なら基礎から学べるProgate[プロゲート]] が参考になる。
+
+. GitHubで``<アカウント名>.github.io``という名前のリポジトリを作成する。
+
+. ``my-blog/config.toml``のトップレベルのセクションで，``baseurl``に``pass:[https://<上記のリポジトリ名>]``を指定する。
++
+[source, toml]
+.config.toml
+----
+baseurl = "https://[GitHubのアカウント名].github.io./"
+----
++
+. 以下のコマンドでページを生成する。
++
 [source, bash]
 ----
 docker compose -p hugo-test run --rm -w /src/my-blog hugo
 ----
++
+. ``my-blog/public/``にページを構成するファイルが生成される。このディレクトリをGitリポジトリとして初期化およびコミットする。
++
+[source, bash]
+----
+cd my-blog/public
+git init
+git add -A
+git commit
+----
++
+. 作成したリモートリポジトリにpushする。
++
+[source, bash]
+----
+git remote add origin <リモートリポジトリのURL>
+# GitHub Pagesで使用されるデフォルトのブランチは"main"なので，
+# ローカルのブランチ名が異なる場合は変更する。
+git branch -M main
+git push -u origin main
+----
++
+. pushしたらページが公開されるまで数分待つ。
+. ``++https://<GitHubのアカウント名>.github.io./++``にアクセスすると，pushしたサイトにアクセスできる。
+
+以降は記事を更新するたびに，ページの生成，コミット，pushを実施すればよい。
+
 
 [bibliography]
 == 参考文献
@@ -328,3 +369,4 @@ docker compose -p hugo-test run --rm -w /src/my-blog hugo
 * [[[hugo-toc, 6]]] https://note.mokuzine.net/hugo-toc/[hugoで目次(tableOfContents)を表示する方法]
 * [[[hugo-page-bundles, 7]]] https://gohugo.io/content-management/page-bundles/[Page Bundles | Hugo]
 * [[[maku77-hugo-page-bundles, 8]]] https://maku77.github.io/hugo/misc/page-bundle.html[画像ファイルを Markdown ファイルと同じディレクトリに置く (Page Bundle) - まくまくHugoノート]
+* [[[github-pages, 9]]] https://docs.github.com/ja/pages/getting-started-with-github-pages[GitHub Pages の概要 - GitHub Docs]
