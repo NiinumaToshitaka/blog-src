@@ -225,7 +225,7 @@ url = "tags"
 
 === ページに画像を挿入する
 
-画像ファイルを管理する方法は2つある。
+画像ファイルを管理する方法は2つある<<hugo-page-bundles>><<maku77-hugo-page-bundles>>。
 
 1. 記事ファイルを``content``ディレクトリに，画像ファイルを``static``ファイルに配置する
 +
@@ -326,3 +326,5 @@ docker compose -p hugo-test run --rm -w /src/my-blog hugo
 * [[[configure-hugo-security-exec-list, 4]]] https://stackoverflow.com/questions/71058236/hugo-with-asciidoctor[blogs - Hugo with Asciidoctor - Stack Overflow]
 * [[[table-of-contents-with-asciidoc, 5]]] https://gohugo.io/content-management/toc/#usage-with-asciidoc[Table of Contents | Hugo]
 * [[[hugo-toc, 6]]] https://note.mokuzine.net/hugo-toc/[hugoで目次(tableOfContents)を表示する方法]
+* [[[hugo-page-bundles, 7]]] https://gohugo.io/content-management/page-bundles/[Page Bundles | Hugo]
+* [[[maku77-hugo-page-bundles, 8]]] https://maku77.github.io/hugo/misc/page-bundle.html[画像ファイルを Markdown ファイルと同じディレクトリに置く (Page Bundle) - まくまくHugoノート]
