@@ -12,6 +12,7 @@ archives: ["2022/12"]
 ---
 
 :toc:
+:toclevels: 3
 // 図を出力するディレクトリ
 // 図はhtmlファイルに埋め込むので保存する必要がない
 :imagesoutdir: ./asciidoctor

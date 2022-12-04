@@ -237,6 +237,35 @@ content/
 
 Hugoの実行環境として使用しているDockerコンテナは，タイムゾーンがUTCに設定されているため，日本時間に変更しないと最新のページが生成されない。
 
+=== 目次を生成する
+
+==== Hugoの設定ファイルを編集
+
+``config.toml``の``[markup]``セクションに以下を追加する<<hugo-toc>>。
+
+[source, toml]
+.config.toml
+----
+include::./my-blog/config.toml[tag=table-of-contents]
+----
+
+==== Hugoのテーマを編集
+
+テーマファイルへ``{{ .TableOfContents }}``を追加する<<hugo-toc>>。
+
+``layouts\_default\single.html``を開き、目次を表示したい箇所に次のようなコードを追加する。
+
+[source, html]
+----
+<h2>目次</h2>
+{{ .TableOfContents }}
+----
+
+==== AsciiDocファイルにTOCディレクティブを追加
+
+HugoはAsciiDocのTOCディレクティブに対応しているので，AsciiDocファイルでは``toc``アトリビュートを定義すればよい<<table-of-contents-with-asciidoc>>。
+ただし``toclevels``アトリビュートの値は少なくとも``config.toml``の``[markup.tableOfContents.endLevel]``と等しい値である必要がある。
+
 [bibliography]
 == 参考文献
 
@@ -244,3 +273,5 @@ Hugoの実行環境として使用しているDockerコンテナは，タイム�
 * [[[hugo-quick-start, 2]]] https://gohugo.io/getting-started/quick-start/[Quick Start | Hugo]
 * [[[hugo-front-matter, 3]]] https://gohugo.io/content-management/front-matter/[Front Matter | Hugo]
 * [[[configure-hugo-security-exec-list, 4]]] https://stackoverflow.com/questions/71058236/hugo-with-asciidoctor[blogs - Hugo with Asciidoctor - Stack Overflow]
+* [[[table-of-contents-with-asciidoc, 5]]] https://gohugo.io/content-management/toc/#usage-with-asciidoc[Table of Contents | Hugo]
+* [[[hugo-toc, 6]]] https://note.mokuzine.net/hugo-toc/[hugoで目次(tableOfContents)を表示する方法]

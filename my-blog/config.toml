@@ -36,3 +36,12 @@ url = "tags"
     verbose = true
     # asciidoctor-diagramを使用するには，この値がtrueである必要がある
     workingFolderCurrent = true
+  
+  # tag::table-of-contents[]
+  [markup.tableOfContents]
+    # 目次を生成するhタグ（<h2>, <h3>など）のレベルを指定
+    startLevel = 2
+    endLevel = 3
+    # <ol>タグで生成するか<ul>タグで生成するかを指定
+    ordered = true
+  # end::table-of-contents[]
