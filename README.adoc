@@ -22,7 +22,7 @@ Hugo shellを起動する。
 
 [source, bash]
 ----
-docker compose -p hugo-test run --rm --service-ports hugo
+docker compose -p hugo-test run --rm --service-ports hugo shell
 ----
 
 ``docker-compose.yml``でカレントディレクトリをコンテナ内の``src``にマウントするよう指定しているので，ホストOS側でファイルを編集すれば，コンテナ内でも反映される。
@@ -117,6 +117,18 @@ hasCJKLanguage= true
 
 [source, bash]
 ----
+# -w: Hugoシェルを起動するコンテナ内のディレクトリを指定
+#   Docker Composeファイルでホストのカレントディレクトリを
+#   コンテナの"/src"にマウントするよう指定しているので，
+#   結果としてホストの"quickstart"ディレクトリが使用される
+docker compose -p hugo-test \
+  run --rm \
+  --service-ports \
+  -w /src/quickstart \
+  hugo \
+  shell
+
+# 開発用のWebサーバを起動
 # -D: "draft: true"のファイルも生成対象とする
 hugo server -D
 ----
@@ -295,6 +307,15 @@ include::./my-blog/config.toml[tag=table-of-contents]
 
 HugoはAsciiDocのTOCディレクティブに対応しているので，AsciiDocファイルでは``toc``アトリビュートを定義すればよい<<table-of-contents-with-asciidoc>>。
 ただし``toclevels``アトリビュートの値は少なくとも``config.toml``の``[markup.tableOfContents.endLevel]``と等しい値である必要がある。
+
+== 生成したページを公開する
+
+以下のコマンドでページを生成する。
+
+[source, bash]
+----
+docker compose -p hugo-test run --rm -w /src/my-blog hugo
+----
 
 [bibliography]
 == 参考文献
