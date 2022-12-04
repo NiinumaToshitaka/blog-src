@@ -62,9 +62,20 @@ Webブラウザで {hugo-develop-site-url} にアクセスすると，作成し�
 
 [source, adoc]
 .default.adoc
-----
-include::quickstart/archetypes/default.adoc[]
-----
+--------
+---
+title: ""
+date: "{{ dateFormat "2006-01-02" .Date }}"
+lastmod: "{{ dateFormat "2006-01-02" .Date }}"
+draft: true
+slug: ""
+thumbnail: ""
+description: ""
+tags: []
+isCJKLanguage: true
+archives: ["{{ dateFormat "2006/01" .Date }}"]
+---
+--------
 
 ``---``で囲われた領域はフロントマター<<hugo-front-matter>>で，ここで各ページのプロパティを指定する。
 
@@ -87,7 +98,17 @@ hugo new posts/sample.adoc
 [source, toml]
 .config.toml
 ----
-include::quickstart/config.toml[tag=base-config]
+# サイトトップに表示されるタイトル
+title = "Sample"
+
+# 使用するテーマ
+# themesディレクトリに同名のディレクトリがないとエラーになる
+theme = "beautifulhugo"
+
+# 日本語を含む場合の言語まわりの設定
+defaultContentLanguage = "ja"
+languageCode = "ja"
+hasCJKLanguage= true
 ----
 
 === 開発用Webサーバを起動
@@ -125,7 +146,11 @@ Error: Error building site: "/src/quickstart/content/posts/sample.adoc:1:1": acc
 
 [source, toml]
 ----
-include::quickstart/config.toml[tag=security-config]
+# "asciidoctor"コマンドを実行を許可するコマンドのリストに追加する。
+# AsciiDocファイルからページを生成するときに，
+# デフォルトの設定だと"asciidoctor"コマンドがリストに登録されておらずエラーになる。
+[security.exec]
+allow = ["^dart-sass-embedded$", "^go$", "^npx$", "^postcss$", "^asciidoctor$"]
 ----
 
 Webブラウザで {hugo-develop-site-url} にアクセスすると，サイトのトップページにアクセスできる。
@@ -176,7 +201,12 @@ git submodule add https://github.com/halogenica/beautifulhugo.git themes/beautif
 [source, toml]
 .config.toml
 ----
-include::quickstart/config.toml[tag=add-tag-list-page]
+[taxonomies]
+tag = "tags"
+
+[[menu.main]]
+name = "タグ一覧"
+url = "tags"
 ----
 
 ページの上部に表示されるヘッダー部に，「タグ一覧」という名前でタグ一覧のページへのリンクが表示される。
@@ -203,7 +233,7 @@ content/
   |- 記事1/
   |   |- index.adoc
   |   |- image1.png
-  |- 記事2
+  |- 記事2/
       |- index.adoc
       |- image2.png
 ....
