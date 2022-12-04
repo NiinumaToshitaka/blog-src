@@ -1,6 +1,14 @@
 # サイトトップに表示されるタイトル
 title = "備忘録"
 
+# ルートディレクトリのURLを指定する。
+# 各ページのURLは"baseurl"からの相対パスとして設定される。
+# これが未設定だと，結果的にページ内で使用するcssやjavascriptのファイルへのパスが
+# そのページからの相対パスになってしまうため，
+# ルートディレクトリ直下のファイルを参照できなくなる。
+# baseurl = "http://localhost:8000"
+baseurl = "https://niinumatoshitaka.github.io./"
+
 # 使用するテーマ
 # themesディレクトリに同名のディレクトリがないとエラーになる
 theme = "beautifulhugo"
