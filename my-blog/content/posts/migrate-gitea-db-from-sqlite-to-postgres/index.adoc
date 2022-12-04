@@ -2,7 +2,7 @@
 title: "GiteaのデータベースをSQliteからPostgreSQLに移行する"
 date: "2022-12-04"
 lastmod: "2022-12-04"
-draft: true
+draft: false
 slug: "migrate-gitea-db-from-sqlite-to-postgres"
 thumbnail: ""
 description: ""
