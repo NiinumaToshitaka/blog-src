@@ -12,6 +12,8 @@ hasCJKLanguage= true
 
 [Params]
 description = "ソフトウェアエンジニアの備忘録です。"
+# "Highlight.js"を使用して，クライアントサイドでコードをハイライトする
+useHLJS = true
 
 # "asciidoctor"コマンドを実行を許可するコマンドのリストに追加する。
 # AsciiDocファイルからページを生成するときに，
