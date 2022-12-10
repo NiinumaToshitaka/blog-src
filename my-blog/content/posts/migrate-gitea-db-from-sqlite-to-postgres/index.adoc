@@ -1,5 +1,5 @@
 ---
-title: "GiteaのデータベースをSQliteからPostgreSQLに移行する"
+title: "GiteaのデータベースをSQLiteからPostgreSQLに移行する"
 date: "2022-12-04"
 lastmod: "2022-12-04"
 draft: false

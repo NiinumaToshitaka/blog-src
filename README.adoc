@@ -178,6 +178,8 @@ Webブラウザで {hugo-develop-site-url} にアクセスすると，サイト�
 hugo server -D --poll 1s
 ----
 
+-> Windowsのファイルシステムにファイルを配置していると上記のとおりだが，WSL内にファイルを配置すれば更新を検知してくれる。パフォーマンスの観点からもファイルはWSL内に配置するのが望ましい footnote:[https://learn.microsoft.com/ja-jp/windows/wsl/filesystems#file-storage-and-performance-across-file-systems[ファイル システム間での作業 | Microsoft Learn]]。
+
 === 使用するテーマを変更する
 
 ここでは https://github.com/halogenica/beautifulhugo[beautifulhugo] に変更してみる。
@@ -297,9 +299,16 @@ include::./my-blog/config.toml[tag=table-of-contents]
 
 ==== Hugoのテーマを編集
 
-テーマファイルへ``{{ .TableOfContents }}``を追加する<<hugo-toc>>。
+``[サイトのルートディレクトリ]/layout``以下に``theme``と同じ構成でファイルを配置すると，ページを生成するときにこのファイルで``theme``以下のファイルを上書きして使用してくれる。
 
-``layouts\_default\single.html``を開き、目次を表示したい箇所に次のようなコードを追加する。
+参考:
+
+* https://shunyaueta.com/posts/2021-10-06/[Hugo で記事の更新日をgitと連携して自動的に取得して表示させる | hurutoriya]
+* https://blog.chick-p.work/blog/hugo-site-directory[HUGO のディレクトリ構成 | ひよこまめ]
+
+テーマのリポジトリ内の``layouts\_default\single.html``を，サイトのルートディレクトリ直下に``layouts\_default\single.html``としてコピーする。
+
+サイトのルートディレクトリ直下の``layouts\_default\single.html``を開き、目次を表示したい箇所に次のように``{{ .TableOfContents }}``を追加する<<hugo-toc>>。
 
 [source, html]
 ----
