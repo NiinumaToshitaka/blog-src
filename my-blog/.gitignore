@@ -19,4 +19,4 @@ hugo.linux
 # End of https://www.toptal.com/developers/gitignore/api/hugo
 
 # AsciiDocファイルを変換するときに生成される中間ファイルは管理しない
-asciidoctor/
+.asciidoctor/

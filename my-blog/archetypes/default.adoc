@@ -18,9 +18,9 @@ archives: ["{{ dateFormat "2006/01" .Date }}"]
 :toclevels: 3
 // 図を出力するディレクトリ
 // 図はhtmlファイルに埋め込むので保存する必要がない
-:imagesoutdir: ./asciidoctor
+:imagesoutdir: .asciidoctor
 // 図のキャッシュファイルを配置するディレクトリ
-:diagram-cachedir: ./asciidoctor
+:diagram-cachedir: .asciidoctor
 // 画像データをhtmlファイル内に埋め込む
 :data-uri:
 // PlantUML図の画像フォーマットを指定
@@ -29,4 +29,7 @@ archives: ["{{ dateFormat "2006/01" .Date }}"]
 // 詳細は以下ページを参照。
 // <https://docs.asciidoctor.org/diagram-extension/latest/#diagram-attributes>
 :plantuml-format: svg
-:source-highlighter: rouge
+:source-highlighter: highlight.js
+//"kbd"マクロなどを有効にする
+:experimental:
+:figure-caption: 図

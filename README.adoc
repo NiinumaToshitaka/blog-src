@@ -1,6 +1,7 @@
 = AsciiDocとHugoでホームページを作成する
 :source-highlighter: rouge
 :toc:
+:experimental:
 :hugo-develop-site-url: http://localhost:1313/
 
 技術情報を発信するブログを作成したいので，AsciiDocとHugoで手軽に作ってみる。
@@ -311,6 +312,12 @@ include::./my-blog/config.toml[tag=table-of-contents]
 HugoはAsciiDocのTOCディレクティブに対応しているので，AsciiDocファイルでは``toc``アトリビュートを定義すればよい<<table-of-contents-with-asciidoc>>。
 ただし``toclevels``アトリビュートの値は少なくとも``config.toml``の``[markup.tableOfContents.endLevel]``と等しい値である必要がある。
 
+=== ソースコードをハイライトする
+
+**TODO** RougeでハイライトするにはCSSを出力して配置する必要があるっぽい？
+
+最新のAsciidoctorはRougeをサポートしている footnote:[<https://github.com/asciidoctor/asciidoctor/blob/main/CHANGELOG.adoc#200-2019-03-22---mojavelinux>] ので，``[markup.asciidocExt.extensions]``で``asciidoctor-rouge``を指定する必要がない。
+
 == 生成したページをGitHub Pagesで公開する
 
 ここでは https://docs.github.com/ja/pages/getting-started-with-github-pages[GitHub Pages] を利用して，生成したページを公開する。
@@ -360,6 +367,44 @@ git push -u origin main
 
 以降は記事を更新するたびに，ページの生成，コミット，pushを実施すればよい。
 
+[appendix]
+== 付録
+
+=== Git BashでDockerコマンド実行時にルートディレクトリから始まるパスを指定すると"working directory ... invalid"になる
+
+Git Bashで，Dockerコマンドで``docker run -w /src``のようにルートディレクトリから始まるパスを指定して実行すると，以下のようにエラーが発生する。
+
+[source, bash]
+----
+Error response from daemon: the working directory '["git-bash.exe"のパス]/src/' is invalid, it needs to be an absolute path
+----
+
+Git Bashは，WindowsのファイルパスをPOSIX形式に変換する機能がある。
+上記のエラーは，この機能により``/src``がGit Bashのルートディレクトリからの相対パスに変換されたために発生している。
+
+これを回避するためのワークアラウンドとして，パスの先頭を``//``にすればよい。
+例えば``/src``は``//src``とする。
+
+参考
+
+* https://github.com/docker/cli/issues/2204#issuecomment-638993192
+* https://qiita.com/nannany_stores/items/52c471d7b13bff9b285e[WindowsのGit Bashでパス変換が予期せぬ動作をする場合の対処法 - Qiita]
+* https://qiita.com/KoyaChan/items/6db4ee5f444fbdeb7a35[git bashで docker -w /usr/src/projectが失敗 - Qiita]
+
+=== vscodeのタスク機能で開発用のHugoサーバを起動する
+
+開発用のHugoサーバを起動するためにコマンドを入力するのは手間なので，vscodeのタスク機能にこの手順を登録する。
+
+``.vscode/tasks.json``に以下を記述する。
+
+[source, bash]
+..vscode/tasks.json
+----
+include::.vscode/tasks.json[]
+----
+* ``${workspaceFolder}``はタスク実行時にワークスペースのルートディレクトリへの絶対パスに置換される。
+
+タスクを実行するには， kbd:[F1] -> _タスク: タスクの実行(Tasks: Run task)_ -> 実行するタスクを選択する。
 
 [bibliography]
 == 参考文献

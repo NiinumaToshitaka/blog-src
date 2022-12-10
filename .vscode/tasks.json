@@ -1,0 +1,17 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            // 開発用のHugoサーバを起動する
+            "label": "start hugo server",
+            "type": "shell",
+            "command": "docker compose --project-name hugo-server --file ${workspaceFolder}/docker-compose.yml run --rm --service-ports -w /src/my-blog hugo server -D"
+        },
+        {
+            // Hugoでページを生成する
+            "label": "run hugo",
+            "type": "shell",
+            "command": "docker compose --project-name hugo-server --file ${workspaceFolder}/docker-compose.yml run --rm --service-ports -w /src/my-blog hugo"
+        }
+    ]
+}

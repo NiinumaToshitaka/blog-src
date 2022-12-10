@@ -1,0 +1,191 @@
+---
+title: "Krokiを利用してAsciiDocファイルに図を記述する"
+date: "2022-12-10"
+lastmod: "2022-12-10"
+draft: false
+slug: "draw-diagram-in-asciidoc-using-kroki"
+thumbnail: ""
+description: ""
+tags: ["AsciiDoc", "PlantUML", "Mermaid", "Docker", "Kroki"]
+isCJKLanguage: true
+archives: ["2022/12"]
+---
+
+// 目次を生成する
+:toc:
+// 目次を生成するレベルを指定
+// 少なくとも"config.toml"の"[markup.tableOfContents.endLevel]"と等しい値とすること
+:toclevels: 3
+// 図を出力するディレクトリ
+// 図はhtmlファイルに埋め込むので保存する必要がない
+:imagesoutdir: .asciidoctor
+// 図のキャッシュファイルを配置するディレクトリ
+:diagram-cachedir: .asciidoctor
+// 画像データをhtmlファイル内に埋め込む
+:data-uri:
+:allow-uri-read:
+// PlantUML図の画像フォーマットを指定
+// ":<ダイアグラムタイプ>-<アトリビュート名>: 値"のフォーマットで，
+// ダイアグラムのアトリビュートをドキュメントレベルで指定できる。
+// 詳細は以下ページを参照。
+// <https://docs.asciidoctor.org/diagram-extension/latest/#diagram-attributes>
+:plantuml-format: svg
+:source-highlighter: highlight.js
+//"kbd"マクロなどを有効にする
+:experimental:
+:figure-caption: 図
+// ソースコードのディレクトリ
+:source-dir: ./src
+:imagesdir: ./image
+
+この記事では，AsciiDocファイルに図を記述し，Krokiを利用して図が埋め込まれたHTMLファイルを生成する手順を説明します。
+図の生成にはKrokiのDockerコンテナを使用するため，vscodeのタスク機能を利用して，フォルダを開いたときにコンテナを自動的に起動するよう設定します。
+
+== 環境
+
+OS:: Windows 10 Home 21H2
+WSL:: Ubuntu 18.04.6 LTS
+Docker:: Docker Desktop 4.12.0
+Visual Studio Code (vscode):: 1.73.1
+
+== ファイル構成
+
+Cドライブの直下に作成した``doc``フォルダ内に，この記事で使用するファイルを配置します。
+ファイル構成は以下のとおりです。
+
+....
+C:\doc
+├── .vscode
+│   ├── settings.json
+│   └── tasks.json
+├── build.sh
+├── docker-compose.yml
+└── sample.adoc
+....
+
+== WSLでフォルダを開く
+
+. vscodeを起動します。
+. kbd:[F1] -> _WSL: WSL でフォルダーを開く..._ を選択します。
+. ``C:\doc``を選択します。
+
+== vscodeに拡張機能をインストール
+
+vscodeの拡張機能タブから，以下の拡張機能をインストールします。
+
+* https://marketplace.visualstudio.com/items?itemName=asciidoctor.asciidoctor-vscode[AsciiDoc]
+* https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker[Docker]
+
+== AsciiDoc拡張機能を設定
+
+KrokiはPlantUMLやMermaidなど様々な形式のテキストから図を生成するサーバアプリケーションです。
+
+図の生成に使用するKrokiサーバは，インターネットで公開されているものを使用するほか，ローカルに立てて使用することもできます。
+ここではインターネットにデータを送信せずに作図するために，ローカルにKrokiサーバを立てます。
+
+Krokiサーバを立てるのは以降の手順で行いますが，AsciiDoc拡張機能がこのKrokiサーバを使用するように，先に``.vscode/settings.json``に以下を追加します。
+
+[source, json]
+..vscode/settings.json
+--------
+include::{source-dir}/.vscode/settings.json[]
+--------
+
+== Krokiサーバを起動するDocker Composeファイルを作成
+
+KrokiサーバはDockerコンテナとして実行します。
+よって，``docker-compose.yml``として以下を作成します。
+
+// "::"はAsciiDocで特別な意味を持つ記号なので，
+// Character Replacement Attributes を使用して置換する。
+// 詳細は以下のリンクを参照。
+// <https://docs.asciidoctor.org/asciidoc/latest/attributes/character-replacement-ref/>
+なお，このファイルの内容は https://docs.kroki.io/kroki/setup/use-docker-or-podman/#_run_multiple_kroki_containers_together[Using Docker or Podman {two-colons} Kroki Documentation] の __Example of running them all together__ に記載されている``docker-compose.yml``の内容から `blockdiag`, `bpmn`, `excalidraw` の定義を削除したものです。
+
+[source, yaml]
+.docker-compose.yml
+----
+include::{source-dir}/docker-compose.yml[]
+----
+
+== vscodeでフォルダを開いたときに自動的にKrokiサーバを起動する
+
+vscodeでAsciiDocファイルを格納したフォルダを開いたときに自動的にKrokiサーバが起動すると便利なので，``.vscode/tasks.json``<<tasks-in-vscode>><<docker-compose-task-in-vscode>>に以下を記述します。
+
+[source, json]
+..vscode/tasks.json
+--------
+include::{source-dir}/.vscode/tasks.json[]
+--------
+
+フォルダを閉じて再度フォルダ開きます。
+タスクの自動実行を許可するか尋ねられるので，「許可して実行」を選択します。
+
+ここで選択しなかった場合， kbd:[F1] -> _タスク: フォルダー内の自動タスクの管理_ -> _フォルダーで自動タスクを許可する_ を選択しても同様に設定できます。
+
+上記を実施すると，``.vscode/settings.json``に以下が追加されます。
+
+[source, json]
+..vscode/settings.json
+----
+{
+  "task.allowAutomaticTasks": "on"
+}
+----
+
+Webブラウザで <http://localhost:8000/> にアクセスし，Krokiのページが表示されることを確認します。
+
+== AsciiDocファイルを作成
+
+AsciiDocファイルにPlantUMLとMermaidの図を埋め込むには，以下のように記述します。
+
+[source, adoc]
+.sample.adoc
+--------
+include::{source-dir}/sample.adoc[]
+--------
+
+== AsciiDocファイルのプレビューを表示
+
+デフォルトではKrokiサーバのように外部から取得したデータをプレビューに埋め込むことはできないので，vscodeで``sample.adoc``のタブをアクティブにした状態で， kbd:[F1] -> _AsciiDoc: Change Preview Security Settings_ -> _Allow insecure local content_ を選択します。
+
+この状態で画面右上の _Open Preview to the Side_ ボタンをクリックするか， kbd:[F1] -> _AsciiDoc: Open Preview to the Side_ を選択すると，プレビューが表示されます。
+
+
+== AsciiDocファイルをHTMLファイルに変換
+
+// TODO 以下のコマンドはカレントディレクトリをDockerコンテナにマウントするが，
+// マウントするにはWSL内でコマンドを実行する必要がある。
+// Git Bashで実行してもマウントされない。
+
+``build.sh``として以下を作成します。
+
+[source, bash]
+.build.sh
+----
+include::{source-dir}/build.sh[]
+----
+<1> カレントディレクトリをコンテナ内の``/documents``ディレクトリにマウントします。
+<2> コンテナをKrokiサーバのDockerコンテナネットワークに接続します。``.vscode/tasks.json``で``projectName``に``kroki-server``を指定しているため，``kroki-server_default``というネットワーク名で接続できます。
+<3> Krokiで生成した図を使用するために，Asciidoctorの拡張機能である``asciidoctor-kroki``を使用します。この拡張機能は本来はAsciidoctorとは別にインストールしておく必要がありますが，``asciidoctor/docker-asciidoctor``イメージには既にインストールされています。
+<4> AsciiDocファイルに``data-uri``と``allow-uri-read``を定義しても反映されないため，``asciidoctor``コマンド実行時に定義します。
+
+作成したら実行します。
+
+[source, bash]
+----
+bash build.sh
+----
+
+実行すると以下の``sample.html``が生成されます。
+
+.sample.html
+image::generated_page.png[]
+
+[bibliography]
+== 参考文献
+
+* [[[write-asciidoc-with-docker, 1]]] https://wohl-yz.net/archives/1683[Docker版 仕様書が書きたくなるAsciiDoc Markdown風にドキュメント作成 | 合同会社ヴォール]
+* [[[setup-kroki-use-docker, 2]]] https://docs.kroki.io/kroki/setup/use-docker-or-podman/[Using Docker or Podman :: Kroki Documentation]
+* [[[tasks-in-vscode, 3]]] https://code.visualstudio.com/docs/editor/tasks[Tasks in Visual Studio Code]
+* [[[docker-compose-task-in-vscode, 4]]] https://code.visualstudio.com/docs/containers/reference#_docker-compose-task[Reference for Visual Studio Code Docker extension properties and tasks.]

@@ -1,0 +1,10 @@
+{
+    // AsciiDocファイルの変換にAsciidoctor.jsを使用する
+    "asciidoc.use_asciidoctor_js": true,
+    // 図の生成にKrokiを使用する
+    "asciidoc.use_kroki": true,
+    "asciidoc.preview.attributes": {
+        // プレビュー時に図の生成に使用するKrokiサーバのURLを指定する
+        "kroki-server-url": "http://localhost:8000"
+    }
+}

@@ -87,6 +87,9 @@ mkdir -p ./gitea-backup
 docker cp {gitea-with-sqlite-docker-container-name}:/tmp/gitea-dump.zip ./gitea-backup/
 ----
 
+// TODO このパスに関するエラーは，コマンドをGit Bashで実行しており，
+// かつ"-w"でルートディレクトリからのパスを指定しているために発生している。
+// 解決方法は"../../../../README.adoc"を参照。
 TIP: 上記のコマンドはWSLで実行する必要があります。Git Bashで実行すると``OCI runtime exec failed: exec failed: Cwd must be an absolute path: unknown``というエラーが発生します。
 
 == 移行先にデータをリストア

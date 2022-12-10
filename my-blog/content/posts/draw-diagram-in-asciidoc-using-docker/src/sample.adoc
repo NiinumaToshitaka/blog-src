@@ -1,0 +1,22 @@
+= AsciiDocファイルに図を記述するテスト
+
+// 図を出力するディレクトリ
+// 図はhtmlファイルに埋め込むので保存する必要がない
+:imagesoutdir: .asciidoctor
+// 図のキャッシュファイルを配置するディレクトリ
+:diagram-cachedir: .asciidoctor
+
+[plantuml]
+----
+actor アリス
+actor ボブ
+アリス -> ボブ: こんにちは
+----
+
+[mermaid]
+----
+sequenceDiagram
+    actor アリス
+    actor ボブ
+    アリス->>ボブ: こんにちは
+----

@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            // タスクの名前
+            "label": "Run docker-compose up",
+            // タスクの種類
+            "type": "docker-compose",
+            // Docker Compose実行時のオプションを指定
+            "dockerCompose": {
+                "up": {
+                    "detached": true
+                },
+                "files": [
+                    "${workspaceFolder}/docker-compose.yml"
+                ],
+                "projectName": "kroki-server"
+            },
+            "runOptions": {
+                // フォルダを開いたときに自動的に実行する
+                "runOn": "folderOpen"
+            }
+        }
+    ]
+}

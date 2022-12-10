@@ -55,3 +55,6 @@ url = "tags"
     # <ol>タグで生成するか<ul>タグで生成するかを指定
     ordered = true
   # end::table-of-contents[]
+
+  [markup.asciidocExt.attributes]
+    figure-caption = "図"
