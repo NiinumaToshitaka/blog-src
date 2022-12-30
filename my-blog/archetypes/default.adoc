@@ -33,3 +33,5 @@ archives: ["{{ dateFormat "2006/01" .Date }}"]
 //"kbd"マクロなどを有効にする
 :experimental:
 :figure-caption: 図
+:sectnums:
+:sectlinks:

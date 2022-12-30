@@ -53,8 +53,10 @@ url = "tags"
     startLevel = 2
     endLevel = 3
     # <ol>タグで生成するか<ul>タグで生成するかを指定
-    ordered = true
+    ordered = false
   # end::table-of-contents[]
 
   [markup.asciidocExt.attributes]
     figure-caption = "図"
+    sectnums = ""
+    sectlinks = ""

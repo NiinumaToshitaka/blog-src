@@ -327,6 +327,36 @@ HugoはAsciiDocのTOCディレクティブに対応しているので，AsciiDoc
 
 最新のAsciidoctorはRougeをサポートしている footnote:[<https://github.com/asciidoctor/asciidoctor/blob/main/CHANGELOG.adoc#200-2019-03-22---mojavelinux>] ので，``[markup.asciidocExt.extensions]``で``asciidoctor-rouge``を指定する必要がない。
 
+== 新しいページを作成する手順
+
+=== 新しいページを追加
+
+. vscodeのタスク"start hugo shell"を実行
+  * kbd:[F1] -> "Tasks: Run Task" -> "start hugo shell"を選択する
+. 以下のコマンドを実行
++
+[source, bash]
+----
+# 新しいページを追加
+hugo new posts/<記事を格納するディレクトリ>/index.adoc
+# コンテナから出る
+exit
+# コンテナ内で作成したファイルは所有者がrootになっていて
+# コンテナ外から編集できないので，所有者を変更する
+sudo chown -R <ユーザ名> <記事を格納するディレクトリ>
+----
+
+=== ページを編集
+
+上記で作成した `index.adoc` を編集する。
+
+=== 記事をプレビュー
+
+. vscodeのタスク"start hugo server"を実行
+. webブラウザで http://localhost:1313/ にアクセス
+
+ファイルを保存すると，webブラウザで表示したページが自動的にリロードされる。
+
 == 生成したページをGitHub Pagesで公開する
 
 ここでは https://docs.github.com/ja/pages/getting-started-with-github-pages[GitHub Pages] を利用して，生成したページを公開する。
@@ -343,13 +373,7 @@ GitHub PagesでWebページを公開する手順は， https://prog-8.com/docs/g
 baseurl = "https://[GitHubのアカウント名].github.io./"
 ----
 +
-. 以下のコマンドでページを生成する。
-+
-[source, bash]
-----
-docker compose -p hugo-test run --rm -w /src/my-blog hugo
-----
-+
+. vscodeのタスク"run hugo"を実行してページを生成する
 . ``my-blog/public/``にページを構成するファイルが生成される。このディレクトリをGitリポジトリとして初期化およびコミットする。
 +
 [source, bash]

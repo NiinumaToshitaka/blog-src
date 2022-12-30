@@ -1,0 +1,27 @@
+Started by user administrator
+Running as SYSTEM
+Building remotely on test-node (python-agent) in workspace /home/jenkins/agent/workspace/test-job
+The recommended git tool is: NONE
+No credentials specified
+ > git rev-parse --resolve-git-dir /home/jenkins/agent/workspace/test-job/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url <GitのリモートリポジトリのURL> # timeout=10
+Fetching upstream changes from <GitのリモートリポジトリのURL>
+ > git --version # timeout=10
+ > git --version # 'git version 2.30.2'
+ > git fetch --tags --force --progress -- <GitのリモートリポジトリのURL> +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse origin/main^{commit} # timeout=10
+Checking out Revision 0b54f13e7552752adbf6227a3f35d289716ddb74 (origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 0b54f13e7552752adbf6227a3f35d289716ddb74 # timeout=10
+Commit message: "initial commit"
+ > git rev-list --no-walk 0b54f13e7552752adbf6227a3f35d289716ddb74 # timeout=10
+[test-job] $ /bin/sh -xe /tmp/jenkins17643066538376113560.sh
++ python3 -m unittest -v test.py
+test_add (test.TestArithmeticMethods) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
+Finished: SUCCESS

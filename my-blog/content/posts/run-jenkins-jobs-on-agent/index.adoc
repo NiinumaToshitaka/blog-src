@@ -1,0 +1,349 @@
+---
+title: "Jenkinsのジョブを別のマシンで実行する"
+date: "2022-12-30"
+lastmod: "2022-12-30"
+draft: false
+slug: "run-jenkins-jobs-on-agent"
+thumbnail: ""
+description: ""
+tags: ["Jenkins", "Docker"]
+isCJKLanguage: true
+archives: ["2022/12"]
+---
+
+// 目次を生成する
+:toc:
+// 目次を生成するレベルを指定
+// 少なくとも"config.toml"の"[markup.tableOfContents.endLevel]"と等しい値とすること
+:toclevels: 3
+// 図を出力するディレクトリ
+// 図はhtmlファイルに埋め込むので保存する必要がない
+:imagesoutdir: .asciidoctor
+// 図のキャッシュファイルを配置するディレクトリ
+:diagram-cachedir: .asciidoctor
+// 画像データをhtmlファイル内に埋め込む
+:data-uri:
+// PlantUML図の画像フォーマットを指定
+// ":<ダイアグラムタイプ>-<アトリビュート名>: 値"のフォーマットで，
+// ダイアグラムのアトリビュートをドキュメントレベルで指定できる。
+// 詳細は以下ページを参照。
+// <https://docs.asciidoctor.org/diagram-extension/latest/#diagram-attributes>
+:plantuml-format: svg
+:source-highlighter: highlight.js
+//"kbd"マクロなどを有効にする
+:experimental:
+:figure-caption: 図
+:sectnums:
+:sectlinks:
+
+この記事では，Jenkinsエージェントを使用して，Jenkinsをインストールしたマシンとは別のマシンでジョブを実行する手順を説明します。
+ジョブの例として，Pythonの単体テストをJenkinsで実行します。
+
+== 用語解説
+
+コントローラ:: Jenkinsのサービス自体を指す。
+エージェント:: コントローラの代わりにジョブを実行するプログラム。
+ノード:: コントローラやエージェントを実行するマシン。
+
+== 環境
+
+=== ソフトウェア
+
+OS:: Windows 10 Home 21H2
+WSL:: Ubuntu 18.04.6 LTS
+Docker:: Docker Desktop 4.12.0
+
+=== ネットワーク構成
+
+この記事では，コントローラとエージェントが異なるノードで実行されることを想定します。
+簡単のため，それぞれのノードをDockerコンテナとして作成します。
+
+各ノードのネットワーク構成は下図のとおりです。
+
+[plantuml]
+.ネットワーク構成
+----
+include::./include/network.puml[]
+----
+
+=== Docker関連ファイル
+
+この記事で使用するDocker関連ファイルの構成は次のとおりです。
+
+....
+.
+├── agent
+│   └── Dockerfile
+└── controller
+    ├── .env
+    └── docker-compose.yml
+....
+
+コントローラとエージェントの環境は以下のファイルで作成します。
+
+[source, yml]
+.コントローラ(`controller/docker-compose.yml`)
+----
+include::./src/controller/docker-compose.yml[]
+----
+
+[source, bash]
+.`controller/.env`
+----
+include::./src/controller/.env[]
+----
+
+[source, dockerfile]
+.エージェント(`agent/Dockerfile`)
+----
+include::./src/agent/Dockerfile[]
+----
+
+[[python-code]]
+=== Pythonコード
+
+Gitのリモートリポジトリの `main` ブランチに以下のソースコードが事前にpushされているものとします。
+
+.ファイル構成
+....
+.
+├── main.py
+└── test.py
+....
+
+[source, python]
+.main.py
+----
+include::./src/python/main.py[]
+----
+
+[source, python]
+.test.py
+----
+include::./src/python/test.py[]
+----
+
+== コントローラを起動
+
+=== コンテナを起動
+
+[source, bash]
+----
+cd controller
+docker compose up --detach
+----
+
+Webブラウザで http://localhost:8080/ にアクセスします。
+
+=== 管理者パスワードを入力
+
+"Unlock Jenkins"画面で _Administrator password_ を要求されます。
+以下のコマンドで管理者パスワードを取得して入力します。
+
+[source, bash]
+----
+docker exec -it jenkins-controller cat /var/jenkins_home/secrets/initialAdminPassword
+----
+
+// initial pass: 3b89e7bceea94846978bd91b611284ec
+// user: admin
+// pass: hogehoge
+// full name: administrator
+
+=== プラグインをインストール
+
+"Customize Jenkins"画面でプラグインをインストールするか尋ねられます。
+
+この段階ではまだプラグインをインストールしないので， _Select plugins to install_ を選択します。
+
+_None_ を選択して btn:[Install] を押します。
+
+=== 管理者ユーザを作成
+
+"Create First Admin User"画面で管理者ユーザをよしなに作成します。
+
+// user: admin
+// pass: hogehoge
+
+=== インスタンスの設定
+
+"Instance Configuration"画面の _Jenkins URL:_ にはデフォルトで `pass:[http://localhost:8080/]` が入力されているので，そのまま btn:[Save and Finish] を押します。
+
+== プラグインをインストール
+
+Jenkinsに以下のプラグインをインストールします。
+
+* https://plugins.jenkins.io/git[Git]
+    ** Gitリポジトリからソースコードを取得するために使用します
+* https://plugins.jenkins.io/instance-identity/[instance-identity]
+    ** エージェントがコントローラと通信するために使用します
+
+プラグインをインストールする手順は次のとおりです。
+
+. ダッシュボード画面 -> Jenkinsの管理 -> プラグインの管理 を選択
+. Available plugins を選択
+. 検索バーにプラグイン名と入力
+. ヒットしたプラグインにチェックを入れる
+. btn:[Download now and install after restart] を押す
+. "Download progress"画面に遷移するので，インストールが完了するまで待つ
+. プラグインのインストール完了後，以下のコマンドでJenkinsを再起動
++
+[source, bash]
+docker compose -p jenkins restart
+
+[[add-node]]
+== ノードを追加
+
+コントローラにノードを追加します。
+
+. ダッシュボード画面 -> "Jenkinsの管理" -> "ノードの管理"を選択
+. btn:[New Node] を押す
+. ノード名に `test-node` と入力し，Typeに _Permanent Agent_ を選択して btn:[Create]
+. 以下のとおり設定して btn:[保存]
++
+リモートFSルート:: `/home/jenkins/agent`
+ラベル:: python-agent
+用途:: このマシーンを特定ジョブ専用にする
+起動方法:: Launch agent by connecting it to the controller
+    Use Websocket::: 有効
+可用性:: Keep this agent online as much as possible
+
+== エージェントを起動
+
+[[build-agent-image]]
+=== イメージをビルド
+
+エージェントプログラム(`agent.jar`)がインストールされているイメージをベースに，Pythonをインストールしたイメージをビルドします。
+
+[source, bash]
+----
+cd agent
+docker build --tag python-agent .
+----
+
+=== コンテナを起動
+
+エージェントのコンテナを起動します。
+以下のコマンドを実行します。
+
+[source, bash]
+----
+export JENKINS_SECRET=642c54461e3bf3a590006b2064d9b9fbd472c9461178bb5a30bd0144b9b9d515 #<1>
+export AGENT_NAME=test-node #<2>
+
+docker run --rm \
+    --net=jenkins_default \ #<3>
+    --init \
+    python-agent \ #<4>
+        -url http://jenkins-controller:8080 \ #<5>
+        -workDir=/home/jenkins/agent \ #<6>
+        $JENKINS_SECRET $AGENT_NAME
+----
+<1> この値は以下の手順で取得します。
++
+. ダッシュボード画面 -> Jenkinsの管理 -> ノードの管理 を選択
+. <<add-node>>で追加したノードを選択
+. _Run from agent command line:_ のコマンドの中で `-secret` で指定されている値を使用する
+<2> <<add-node>>で指定したノード名を指定します。
+<3> エージェントのコンテナがコントローラのコンテナと通信できるように，コントローラ側でデフォルトで作成されているネットワークに接続します。
+<4> <<build-agent-image>>でビルドしたイメージを使用します。
+<5> コントローラで公開しているJenkinsのURLを指定します。エージェントのコンテナとコントローラのコンテナは同一のDockerネットワークに接続しているため， `pass:[http://<コンテナ名>:<ポート番号>]` でアクセスできます。
+<6> <<add-node>>で指定した"リモートFSルート"の値を指定します。
+
+ダッシュボード画面 -> "Jenkinsの管理" -> "ノードの管理"を選択します。
+"ビルド実行状態"で `test-node` が"待機中"になっていれば，エージェントがコントローラに接続できています。
+
+[[create-job]]
+== ジョブを作成
+
+. ダッシュボード画面 -> "新規ジョブ作成"を選択
+. ジョブ名に `test-job` を指定して btn:[OK]
+. 以下のとおり設定
++
+General::
+    実行するノードを制限::: 有効
+        ラベル式:::: <<add-node>>で指定したノード名
+ソースコード管理:: Git
+    リポジトリURL::: <<python-code>>のURL
+    ビルドするブランチ::: `main`
+Build Steps:: シェルの実行
+    シェルスクリプト::: `python3 -m unittest -v test.py`
++
+. btn:[保存]
+
+== ジョブを実行
+
+<<create-job>>で作成したジョブのページを開き，"ビルド実行"を選択します。
+
+ジョブ作成時に"シェルスクリプト"でPythonの単体テストを実行するコマンドを指定したので，このコマンドが実行されます。
+
+単体テストの実行結果は"ビルド履歴"の"コンソール出力"から確認できます。
+出力例は以下のとおりです。
+
+[source, bash]
+----
+include::./include/jenkins-job-log.txt[]
+----
+
+上記の出力では，1件のテストが実行され，成功したことがわかります。
+
+[bibliography]
+== 参考文献
+
+. https://cloudbees.techmatrix.jp/blog/struggle-story-about-ci-5/[【CI奮闘記】第5章：コントローラー？エグゼキューター？エージェント？» CloudBees|テクマトリックス]
+. https://cloudbees.techmatrix.jp/blog/struggle-story-about-ci-6/[【CI奮闘記】第6章：エージェントを作ってみよう！» CloudBees|テクマトリックス]
+. https://www.jenkins.io/doc/book/glossary/
+
+ifdef::internal[]
+[appendix]
+== ローカルに立てたGiteaサーバにサンプルコードをpushする
+
+. Giteaサーバを立てる。
++
+[source, bash]
+----
+cd gitea
+docker compose up --detach
+----
++
+. http://localhost:3000 にアクセスする。
+. よしなに初期設定する。ユーザ名とパスワードはそれぞれ `root` と `hogehoge`とする。
+. `python-app` という名前でリポジトリを作成する。
+. コードをpushする。このとき**vscodeのターミナルではない端末で**ローカルリポジトリを開くこと。
++
+[source, bash]
+----
+cd python
+git remote add origin http://localhost:3000/root/python-app.git
+# ローカルのブランチ名が"main"でない場合は，
+# リモートリポジトリに合わせて"main"に変更する
+git branch -m main
+git push -u origin main
+----
+
+********
+なぜかvscodeのターミナルからpushすると，以下のようにエラーが発生する。
+
+....
+$ git push -u origin main
+Missing or invalid credentials.
+Error: connect EACCES /mnt/wslg/runtime-dir/vscode-git-f45eab12ab.sock
+    at PipeConnectWrap.afterConnect [as oncomplete] (node:net:1157:16) {
+  errno: -13,
+  code: 'EACCES',
+  syscall: 'connect',
+  address: '/mnt/wslg/runtime-dir/vscode-git-f45eab12ab.sock'
+}
+Missing or invalid credentials.
+Error: connect EACCES /mnt/wslg/runtime-dir/vscode-git-f45eab12ab.sock
+    at PipeConnectWrap.afterConnect [as oncomplete] (node:net:1157:16) {
+  errno: -13,
+  code: 'EACCES',
+  syscall: 'connect',
+  address: '/mnt/wslg/runtime-dir/vscode-git-f45eab12ab.sock'
+}
+remote: Unauthorized
+fatal: Authentication failed for 'http://localhost:3000/root/python-app.git/'
+....
+********
+endif::internal[]

@@ -1,0 +1,17 @@
+@startuml network-diagram
+rectangle Docker {
+    rectangle masterノードコンテナ {
+        rectangle Jenkinsコントローラ as controller
+    }
+    rectangle テストノードコンテナ {
+        rectangle Jenkinsエージェント as agent
+        rectangle Python as python
+    }
+}
+rectangle Gitリモートリポジトリ as repo
+
+controller --> agent: ジョブの実行を指示
+repo --> agent: pull
+agent -> python: 単体テスト実行
+agent --> controller: 実行結果
+@enduml

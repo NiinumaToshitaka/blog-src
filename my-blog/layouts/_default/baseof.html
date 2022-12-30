@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="{{ .Lang }}" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    {{ partial "head.html" . }}
+    <style type="text/css">
+      /* デフォルトのCSSだと，ページ内リンクでジャンプした時，
+       * ジャンプ先のアンカーが画面の最上部に張り付くように表示される。
+       * これだとアンカーの位置がヘッダー部分に隠れてしまうので見栄えが悪い。
+       * よって，いい感じに余白を入れる。 */
+      a.link{
+          display: block;
+          padding-top: 100px;
+          margin-top: -100px;
+      }
+    </style>
+  </head>
+  <body>
+    {{ partial "nav.html" . }}
+    {{ block "header" . }}{{ partial "header.html" . }}{{ end }}
+    {{ block "main" . }}{{ end }}
+    {{ partial "footer.html" . }}
+    {{ block "footer" . }}{{ end }}
+  </body>
+</html>

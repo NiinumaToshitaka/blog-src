@@ -11,7 +11,13 @@
             // Hugoでページを生成する
             "label": "run hugo",
             "type": "shell",
-            "command": "docker compose --project-name hugo-server --file ${workspaceFolder}/docker-compose.yml run --rm --service-ports -w /src/my-blog hugo"
+            "command": "docker compose --project-name hugo-server --file ${workspaceFolder}/docker-compose.yml run --rm -w /src/my-blog hugo"
+        },
+        {
+            // Hugo shellを起動する
+            "label": "start hugo shell",
+            "type": "shell",
+            "command": "docker compose --project-name hugo-server --file ${workspaceFolder}/docker-compose.yml run --rm --service-ports -w /src/my-blog hugo shell"
         }
     ]
 }
